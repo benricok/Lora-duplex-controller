@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+    <html>
+        <head>
+            <title>Iot-controller dashboard</title>
+            <meta name="viewport" content="width=device-width, minimumscale=1.0, maximum-scale=1.0, initial-scale=1" />
+            <style>
+                header { text-align: center; min-height: 110px; background-color: lightseagreen; color: white}
+                h1 { font-size: 60px; margin-top: 0px; font-family: Georgia, 'Times New Roman', Times, serif}
+                h2 { font-size: 30px; font-family: Arial, Helvetica, sans-serif}
+                #Settings { display: none; margin-top: 30px; } 
+                #Data { display: block; margin-top: 30px; } 
+                .changeViewButton { clear: both; position:relative; margin-top: 30px; -moz-box-shadow: 0px 1px 0px 0px #fff6af; -webkit-box-shadow: 0px 1px 0px 0px #fff6af; box-shadow: 0px 1px 0px 0px #fff6af; background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #ffec64), color-stop(1, #ffab23)); background:-moz-linear-gradient(top, #ffec64 5%, #ffab23 100%); background:-webkit-linear-gradient(top, #ffec64 5%, #ffab23 100%); background:-o-linear-gradient(top, #ffec64 5%, #ffab23 100%); background:-ms-linear-gradient(top, #ffec64 5%, #ffab23 100%); background:linear-gradient(to bottom, #ffec64 5%, #ffab23 100%); filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffec64', endColorstr='#ffab23',GradientType=0); background-color:#ffec64; -moz-border-radius:6px; -webkit-border-radius:6px; border-radius:6px; border:1px solid #ffaa22; display:inline-block; cursor:pointer; color:#333333; font-family:Arial; font-size:15px; padding:8px 50px; text-decoration:none; text-shadow:0px 1px 0px #ffee66; }
+                .changeViewButton:hover { background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #ffab23), color-stop(1, #ffec64)); background:-moz-linear-gradient(top, #ffab23 5%, #ffec64 100%); background:-webkit-linear-gradient(top, #ffab23 5%, #ffec64 100%); background:-o-linear-gradient(top, #ffab23 5%, #ffec64 100%); background:-ms-linear-gradient(top, #ffab23 5%, #ffec64 100%); background:linear-gradient(to bottom, #ffab23 5%, #ffec64 100%); filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffab23', endColorstr='#ffec64',GradientType=0); background-color:#ffab23; } 
+                .changeViewButton:active { position:relative; top:4px; }
+                .onButton { clear: both; position:relative; margin-left: 5px; margin-top: 10px; -moz-box-shadow: 0px 1px 0px 0px #5bda2a; -webkit-box-shadow: 0px 1px 0px 0px #5bda2a; box-shadow: 0px 1px 0px 0px #5bda2a; background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #5bda2a), color-stop(1, #5bda2a)); background:-moz-linear-gradient(top, #5bda2a 5%, #5bda2a 100%); background:-webkit-linear-gradient(top, #5bda2a 5%, #5bda2a 100%); background:-o-linear-gradient(top, #5bda2a 5%, #5bda2a 100%); background:-ms-linear-gradient(top, #5bda2a 5%, #5bda2a 100%); background:linear-gradient(to bottom, #5bda2a 5%, #5bda2a 100%); filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffec64', endColorstr='#ffab23',GradientType=0); background-color:#5bda2a; -moz-border-radius:6px; -webkit-border-radius:6px; border-radius:6px; border:1px solid #5bda2a; display:inline-block; cursor:pointer; color:#333333; font-family:Arial; font-size:12px; padding:4px 13px; text-decoration:none; text-shadow:0px 1px 0px #5bda2a; }
+                .onButton:hover { background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #a7ff8c), color-stop(1, #a7ff8c)); background:-moz-linear-gradient(top, #a7ff8c 5%, #a7ff8c 100%); background:-webkit-linear-gradient(top, #a7ff8c 5%, #a7ff8c 100%); background:-o-linear-gradient(top, #a7ff8c 5%, #a7ff8c 100%); background:-ms-linear-gradient(top, #a7ff8c 5%, #a7ff8c 100%); background:linear-gradient(to bottom, #a7ff8c 5%, #a7ff8c 100%); filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#a7ff8c', endColorstr='#a7ff8c',GradientType=0); background-color:#a7ff8c; } 
+                .onButton:active { position:relative; top:4px; }
+                .offButton { clear: both; position:relative; margin-left: 8px; margin-top: 10px; -moz-box-shadow: 0px 1px 0px 0px #f06262; -webkit-box-shadow: 0px 1px 0px 0px #f06262; box-shadow: 0px 1px 0px 0px #f06262; background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #f06262), color-stop(1, #f06262)); background:-moz-linear-gradient(top, #f06262 5%, #f06262 100%); background:-webkit-linear-gradient(top, #f06262 5%, #f06262 100%); background:-o-linear-gradient(top, #f06262 5%, #f06262 100%); background:-ms-linear-gradient(top, #f06262 5%, #f06262 100%); background:linear-gradient(to bottom, #f06262 5%, #f06262 100%); filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffec64', endColorstr='#ffab23',GradientType=0); background-color:#f06262; -moz-border-radius:6px; -webkit-border-radius:6px; border-radius:6px; border:1px solid #f06262; display:inline-block; cursor:pointer; color:#333333; font-family:Arial; font-size:12px; padding:4px 11px; text-decoration:none; text-shadow:0px 1px 0px #f06262; }
+                .offButton:hover { background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #df7e7e), color-stop(1, #df7e7e)); background:-moz-linear-gradient(top, #df7e7e 5%, #df7e7e 100%); background:-webkit-linear-gradient(top, #df7e7e 5%, #df7e7e 100%); background:-o-linear-gradient(top, #df7e7e 5%, #df7e7e 100%); background:-ms-linear-gradient(top, #df7e7e 5%, #df7e7e 100%); background:linear-gradient(to bottom, #df7e7e 5%, #df7e7e 100%); filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#df7e7e', endColorstr='#df7e7e',GradientType=0); background-color:#df7e7e; } 
+                .offButton:active { position:relative; top:4px; }
+            </style>
+        </head>
+        <header>
+            <h1>
+                Dashboard
+            </h1>
+        </header>
+        <body>
+            <div id='Data' >
+                <h2 class="sensorHeader">Sensors:</h2>
+                <div id='Pod'>
+                    <h3>
+                        Pod:
+                        <div id='PodInfo'>@</div>
+                    </h3>
+                </div>
+                <div id='Switch'>
+                    <h3>
+                        Switch:
+                        <div id='SwitchInfo'>@</div>
+                    </h3>
+                </div>
+                <h2 class="ledHeader">Leds:</h2>
+                <form action="/" method="POST">
+                    <div id='Led1'>
+                        <h3>
+                            Led1: <div id="LEDON1info">@</div>
+                            <br>
+                            <button class="onButton" name="LEDON1">ON</button><button class="offButton" name="LEDOFF1">OFF</button>                        
+                        </h3>
+                    </div>
+                    <div id='Led2'>
+                        <h3>
+                            Led2: <div id="LEDON2info">@</div>
+                            <br>
+                            <button class="onButton" name="LEDON2">ON</button><button class="offButton" name="LEDOFF2">OFF</button>  
+                        </h3>
+                    </div>
+                    <div id='Led3'>
+                        <h3>
+                            Led3: <div id="LEDON3info">@</div>
+                            <br>
+                            <button class="onButton" name="LEDON3">ON</button><button class="offButton" name="LEDOFF3">OFF</button>  
+                        </h3>
+                    </div>
+                    <div id='Led4'>
+                        <h3>
+                            Led4: <div id="LEDON4info">@</div>
+                            <br>
+                            <button class="onButton" name="LEDON4">ON</button><button class="offButton" name="LEDOFF4">OFF</button>  
+                        </h3>
+                    </div>
+                </form>        
+            </div>
+            <div id='Settings'>
+                <h2>Settings:</h2>
+                <h3>Total Connected Nodes:</h3><div id='TNodes'>@</div><br>
+                <h3>Update rate:</h3>
+                <input type="range" style="width: 300px" min="200" max="5000" value="2000" id="fader" step="1" oninput="outputUpdate(value)"> <output for="fader" id="#slide">2000</output>
+            </div>
+            <div>   
+                <button onClick="ChangeView()" id="changeView1" class="changeViewButton">Settings</button>
+            </div>
+            <script>
+                var Changed = false;
+                function ChangeView() 
+                {
+                    if(Changed == false) 
+                    {
+                        document.getElementById('Data').style.display = 'none';
+                        document.getElementById('Settings').style.display = 'block';
+                        document.getElementById('changeView1').innerHTML = "Show Data"; 
+                        Changed = true; 
+                    } 
+                        else 
+                    {
+                        document.getElementById('Data').style.display = 'block';
+                        document.getElementById('Settings').style.display = 'none';
+                        document.getElementById('changeView1').innerHTML = "Settings"; 
+                        Changed = false; 
+                    }
+                }
+
+                function loadDoc() { 
+		            var xhttp = new XMLHttpRequest(); xhttp.onreadystatechange = function() 
+                    { 
+			            if (this.readyState == 4 && this.status == 200) 
+                        { 
+				            var obj = JSON.parse(this.responseText); 
+				            document.getElementById("light").innerHTML = obj.data[0].dataValue; 
+				            document.getElementById("countNum").innerHTML = obj.data[1].dataValue;
+                            document.getElementById("LEDON1info").innerHTML = obj.data[2].dataValue;
+                            document.getElementById("LEDON2info").innerHTML = obj.data[3].dataValue;
+                            document.getElementById("LEDON3info").innerHTML = obj.data[4].dataValue;
+                            document.getElementById("LEDON4info").innerHTML = obj.data[5].dataValue;
+                            document.getElementById("TNodes").innerHTML = obj.data[6].dataValue;  
+			            } 
+
+                        xhttp.open("GET", "/data", true); xhttp.send(); 
+	                } 
+		        } 
+
+                function outputUpdate(vol) 
+                { 
+		            timedEvent = setInterval(function(){ loadDoc(); }, vol); 
+		            document.querySelector('#slide').value = vol; 
+	            }        
+            </script>
+        </body>
+    </html>
