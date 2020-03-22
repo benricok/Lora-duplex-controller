@@ -5,30 +5,26 @@
 #include <LoRa.h>
 #include <AESLib.h>
 
-uint8_t key[] = {0x2C, 0x66, 0x54, 0x34, 0xE3, 0xAE, 0xC7, 0x32,
-                 0xC4, 0x36, 0xC8, 0xBE, 0xF3, 0x72, 0x22, 0x36};
 
-const char *wifi_ssid = "KROGWiFi";
-const char *wifi_password = "Soet2909admin";
-const char *adminUser = "Iot";
-const char *adminPassword = "Iot6541";
+//Change these values
+  const char *wifi_ssid = "KROGWiFi";
+  const char *wifi_password = "Soet2909admin";
+  const char *adminUser = "Iot";
+  const char *adminPassword = "Iot6541";
 
-const int csPin = D8; 
-const int resetPin = D1; 
-const int irqPin = D2;
+//Pins for LoRa
+  const int csPin = D8; 
+  const int resetPin = D1; 
+  const int irqPin = D2;
 
-byte msgCount = 0;        
-byte localAddress = 0xE6;    
-byte destination = 0x3C;     
-long lastSendTime = 0;   
-int interval = 2000;
-long lastRecieveTime = 0;   
-int nodeConectedTimeout = 12000;     
-
-String newUser; 
-String newPassword;
-String newWifi; 
-String newWifiPassword;
+//Properties for lora packet and send rate
+  byte msgCount = 0;        
+  byte localAddress = 0xE6;    
+  byte destination = 0x3C;     
+  long lastSendTime = 0;   
+  int interval = 2000;
+  long lastRecieveTime = 0;   
+  int nodeConectedTimeout = 12000;     
 
 boolean LEDON1 = false;
 boolean LEDON2 = false;
@@ -45,7 +41,8 @@ boolean varSwitch = false;
 int nodeConnected = 1;
 
 ESP8266WebServer server(80);
- 
+
+//Login function to authencate user  
 void handleLogin()
 {
   String msg;
@@ -57,6 +54,7 @@ void handleLogin()
     Serial.println(cookie);
   }
 
+  //User Logout (remove cookie)
   if (server.hasArg("DISCONNECT"))
   {
     Serial.println("Disconnection");
@@ -65,6 +63,7 @@ void handleLogin()
     return;
   }
 
+  //Check username and password
   if (server.hasArg("USERNAME") && server.hasArg("PASSWORD"))
   {
     if (server.arg("USERNAME") == adminUser &&  server.arg("PASSWORD") == adminPassword )
@@ -74,17 +73,21 @@ void handleLogin()
       Serial.println("Log in Successful by user");
       return;
     }
-  msg = "<p class='wrongInput'>Wrong username/password! try again.</p>";
-  Serial.println("Log in Failed");
+    //Username or password failed
+    msg = "<p class='wrongInput'>Wrong username/password! try again.</p>";
+    Serial.println("Log in Failed");
   }
 
+  //Login HTML (/login.html) | Converted to string by using included tool (/HTML_to-String.html)
   String html ="<!DOCTYPE html> <html> <head> <title>Iot-controller dashboard</title> <meta name=\"viewport\" content=\"width=device-width, minimumscale=1.0, maximum-scale=1.0, initial-scale=1\" /> <style> header {text-align: center; min-height: 110px; background-color: lightseagreen; color: white} h1 {font-size: 60px; margin-top: 0px; font-family: Georgia, 'Times New Roman', Times, serif} h2 {font-family: Arial, Helvetica, sans-serif} body {text-align: center} .inputSubmit { clear: both; position:relative; margin-top: 10px; -moz-box-shadow: 0px 1px 0px 0px #fff6af; -webkit-box-shadow: 0px 1px 0px 0px #fff6af; box-shadow: 0px 1px 0px 0px #fff6af; background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #ffec64), color-stop(1, #ffab23)); background:-moz-linear-gradient(top, #ffec64 5%, #ffab23 100%); background:-webkit-linear-gradient(top, #ffec64 5%, #ffab23 100%); background:-o-linear-gradient(top, #ffec64 5%, #ffab23 100%); background:-ms-linear-gradient(top, #ffec64 5%, #ffab23 100%); background:linear-gradient(to bottom, #ffec64 5%, #ffab23 100%); filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffec64', endColorstr='#ffab23',GradientType=0); background-color:#ffec64; -moz-border-radius:6px; -webkit-border-radius:6px; border-radius:6px; border:1px solid #ffaa22; display:inline-block; cursor:pointer; color:#333333; font-family:Arial; font-size:15px; padding:8px 50px; text-decoration:none; text-shadow:0px 1px 0px #ffee66; } .inputSubmit:hover { background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #ffab23), color-stop(1, #ffec64)); background:-moz-linear-gradient(top, #ffab23 5%, #ffec64 100%); background:-webkit-linear-gradient(top, #ffab23 5%, #ffec64 100%); background:-o-linear-gradient(top, #ffab23 5%, #ffec64 100%); background:-ms-linear-gradient(top, #ffab23 5%, #ffec64 100%); background:linear-gradient(to bottom, #ffab23 5%, #ffec64 100%); filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffab23', endColorstr='#ffec64',GradientType=0); background-color:#ffab23; } .inputSubmit:active { position:relative; top:2px; } .password {margin-top: 4px;margin-right: 30px} .wrongInput {color: red; margin-top: 6px;} </style> </head> <header> <h1> Dashboard </h1> </header> <body> <form action='/login' method='POST'> User: <input type='text' name='USERNAME' placeholder=' username'><br> Password: <input type='password' class=\"password\" name='PASSWORD' placeholder=' password'> <br class=\"error\"> ";
   html += msg;
   html +=" <br> <input type='submit' class=\"inputSubmit\" name='SUBMIT' value='Submit'><br> </form> <br> <a href='/info'>info</a> </body> </html>";
-
+  
+  //send html to client
   server.send(200, "text/html", html);
 }
 
+//check if user has cookie
 bool is_authentified()
 {
   Serial.println("Enter is_authentified");
@@ -104,6 +107,7 @@ bool is_authentified()
   return false;  
 }
 
+//generate JSON string to be served on /data
 void handelGetData()
 {
   String jsonData = "{\"data\":[";
@@ -132,6 +136,7 @@ void handelGetData()
 
   String header;
 
+  //checks if user is athenticated before serving /data
   if (!is_authentified())
   {
     String header = "HTTP/1.1 301 OK\r\nLocation: /login\r\nCache-Control: no-cache\r\n\r\n";
@@ -139,7 +144,11 @@ void handelGetData()
     return;
   }
   
+  //log 
+  Serial.println();
   Serial.println("Client updated webpage");
+  Serial.println();
+  //send JSON string
   server.send(200, "application/json", jsonData);
 }
 
@@ -155,6 +164,7 @@ void handleRoot()
     return;
   }
 
+  //Main HTML page (/Index.html) | Converted to string by using included tool (/HTML_to-String.html)
   String html ="<!DOCTYPE html><html lang=\"en\"> <head> <meta charset=\"UTF-8\"> <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> <title>Document</title> <style>header{text-align:center;min-height:110px;background-color:#20b2aa;color:#fff}h1{font-size:60px;margin-top:0;font-family:Georgia,Times New Roman,Times,serif}h2{font-size:30px;font-family:Arial,Helvetica,sans-serif}#Settings{display:none;margin-top:30px}#Data{display:block;margin-top:30px}.changeViewButton{clear:both;position:relative;margin-top:30px;-moz-box-shadow:0 1px 0 0 #fff6af;-webkit-box-shadow:0 1px 0 0 #fff6af;box-shadow:0 1px 0 0 #fff6af;background:-webkit-gradient(linear,left top,left bottom,color-stop(.05,#ffec64),color-stop(1,#ffab23));background:-moz-linear-gradient(top,#ffec64 5%,#ffab23 100%);background:-webkit-linear-gradient(top,#ffec64 5%,#ffab23);background:-o-linear-gradient(top,#ffec64 5%,#ffab23 100%);background:-ms-linear-gradient(top,#ffec64 5%,#ffab23 100%);background:linear-gradient(180deg,#ffec64 5%,#ffab23);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=\"#ffec64\",endColorstr=\"#ffab23\",GradientType=0);background-color:#ffec64;-moz-border-radius:6px;-webkit-border-radius:6px;border-radius:6px;border:1px solid #fa2;display:inline-block;cursor:pointer;color:#333;font-family:Arial;font-size:15px;padding:8px 50px;text-decoration:none;text-shadow:0 1px 0 #fe6}.changeViewButton:hover{background:gradient(linear,left top,left bottom,color-stop(.05,#ffab23),color-stop(1,#ffec64));background:-moz-linear-gradient(top,#ffab23 5%,#ffec64 100%);background:-webkit-linear-gradient(top,#ffab23 5%,#ffec64);background:-o-linear-gradient(top,#ffab23 5%,#ffec64 100%);background:-ms-linear-gradient(top,#ffab23 5%,#ffec64 100%);background:linear-gradient(180deg,#ffab23 5%,#ffec64);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=\"#ffab23\",endColorstr=\"#ffec64\",GradientType=0);background-color:#ffab23}.changeViewButton:active{position:relative;top:4px}.onButton{clear:both;position:relative;margin-left:5px;margin-top:10px;-moz-box-shadow:0 1px 0 0 #5bda2a;-webkit-box-shadow:0 1px 0 0 #5bda2a;box-shadow:0 1px 0 0 #5bda2a;background:-webkit-gradient(linear,left top,left bottom,color-stop(.05,#5bda2a),color-stop(1,#5bda2a));background:-moz-linear-gradient(top,#5bda2a 5%,#5bda2a 100%);background:-webkit-linear-gradient(top,#5bda2a 5%,#5bda2a);background:-o-linear-gradient(top,#5bda2a 5%,#5bda2a 100%);background:-ms-linear-gradient(top,#5bda2a 5%,#5bda2a 100%);background:linear-gradient(180deg,#5bda2a 5%,#5bda2a);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=\"#ffec64\",endColorstr=\"#ffab23\",GradientType=0);background-color:#5bda2a;-moz-border-radius:6px;-webkit-border-radius:6px;border-radius:6px;border:1px solid #5bda2a;display:inline-block;cursor:pointer;color:#333;font-family:Arial;font-size:12px;padding:4px 13px;text-decoration:none;text-shadow:0 1px 0 #5bda2a}.onButton:hover{background:gradient(linear,left top,left bottom,color-stop(.05,#a7ff8c),color-stop(1,#a7ff8c));background:-moz-linear-gradient(top,#a7ff8c 5%,#a7ff8c 100%);background:-webkit-linear-gradient(top,#a7ff8c 5%,#a7ff8c);background:-o-linear-gradient(top,#a7ff8c 5%,#a7ff8c 100%);background:-ms-linear-gradient(top,#a7ff8c 5%,#a7ff8c 100%);background:linear-gradient(180deg,#a7ff8c 5%,#a7ff8c);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=\"#a7ff8c\",endColorstr=\"#a7ff8c\",GradientType=0);background-color:#a7ff8c}.onButton:active{position:relative;top:4px}.offButton{clear:both;position:relative;margin-left:8px;margin-top:10px;-moz-box-shadow:0 1px 0 0 #f06262;-webkit-box-shadow:0 1px 0 0 #f06262;box-shadow:0 1px 0 0 #f06262;background:-webkit-gradient(linear,left top,left bottom,color-stop(.05,#f06262),color-stop(1,#f06262));background:-moz-linear-gradient(top,#f06262 5%,#f06262 100%);background:-webkit-linear-gradient(top,#f06262 5%,#f06262);background:-o-linear-gradient(top,#f06262 5%,#f06262 100%);background:-ms-linear-gradient(top,#f06262 5%,#f06262 100%);background:linear-gradient(180deg,#f06262 5%,#f06262);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=\"#ffec64\",endColorstr=\"#ffab23\",GradientType=0);background-color:#f06262;-moz-border-radius:6px;-webkit-border-radius:6px;border-radius:6px;border:1px solid #f06262;display:inline-block;cursor:pointer;color:#333;font-family:Arial;font-size:12px;padding:4px 11px;text-decoration:none;text-shadow:0 1px 0 #f06262}.offButton:hover{background:gradient(linear,left top,left bottom,color-stop(.05,#df7e7e),color-stop(1,#df7e7e));background:-moz-linear-gradient(top,#df7e7e 5%,#df7e7e 100%);background:-webkit-linear-gradient(top,#df7e7e 5%,#df7e7e);background:-o-linear-gradient(top,#df7e7e 5%,#df7e7e 100%);background:-ms-linear-gradient(top,#df7e7e 5%,#df7e7e 100%);background:linear-gradient(180deg,#df7e7e 5%,#df7e7e);filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=\"#df7e7e\",endColorstr=\"#df7e7e\",GradientType=0);background-color:#df7e7e}.offButton:active{position:relative;top:4px}</style></head> <body> <header> <h1> Dashboard </h1> </header> <div id=\"Data\"> <h2 class=\"sensorHeader\">Sensors:</h2> <div id=\"Pod\"> <h3> Pod: <div id=\"PodInfo\">";
   html += varPod;
   html +="</div> </h3> </div> <div id=\"Switch\"> <h3> Switch: <div id=\"SwitchInfo\">";
@@ -171,9 +181,9 @@ void handleRoot()
   html += nodeConnected;
   html +="</div><br> <h3>Update rate:</h3> <input type=\"range\" style=\"width:300px\" min=\"200\" max=\"5000\" value=\"2000\" id=\"fader\" step=\"1\"> <output for=\"fader\">2000</output> </div> <div> <button id=\"changeView1\" class=\"changeViewButton\">Settings</button> </div> <script>parcelRequire=function(e,r,n,t){var i=\"function\"==typeof parcelRequire&&parcelRequire,o=\"function\"==typeof require&&require;function u(n,t){if(!r[n]){if(!e[n]){var f=\"function\"==typeof parcelRequire&&parcelRequire;if(!t&&f)return f(n,!0);if(i)return i(n,!0);if(o&&\"string\"==typeof n)return o(n);var c=new Error(\"Cannot find module '\"+n+\"'\");throw c.code=\"MODULE_NOT_FOUND\",c}p.resolve=function(r){return e[n][1][r]||r};var l=r[n]=new u.Module(n);e[n][0].call(l.exports,p,l,l.exports,this)}return r[n].exports;function p(e){return u(p.resolve(e))}}u.isParcelRequire=!0,u.Module=function(e){this.id=e,this.bundle=u,this.exports={}},u.modules=e,u.cache=r,u.parent=i,u.register=function(r,n){e[r]=[function(e,r){r.exports=n},{}]};for(var f=0;f<n.length;f++)u(n[f]);if(n.length){var c=u(n[n.length-1]);\"object\"==typeof exports&&\"undefined\"!=typeof module?module.exports=c:\"function\"==typeof define&&define.amd?define(function(){return c}):t&&(this[t]=c)}return u}({\"vKFU\":[function(require,module,exports) { },{}],\"7QCb\":[function(require,module,exports) { \"use strict\";var e=this&&this.__awaiter||function(e,t,n,a){return new(n||(n=Promise))(function(r,o){function i(e){try{c(a.next(e))}catch(e){o(e)}}function u(e){try{c(a.throw(e))}catch(e){o(e)}}function c(e){var t;e.done?r(e.value):(t=e.value,t instanceof n?t:new n(function(e){e(t)})).then(i,u)}c((a=a.apply(e,t||[])).next())})},t=this&&this.__generator||function(e,t){var n,a,r,o,i={label:0,sent:function(){if(1&r[0])throw r[1];return r[1]},trys:[],ops:[]};return o={next:u(0),throw:u(1),return:u(2)},\"function\"==typeof Symbol&&(o[Symbol.iterator]=function(){return this}),o;function u(o){return function(u){return function(o){if(n)throw new TypeError(\"Generator is already executing.\");for(;i;)try{if(n=1,a&&(r=2&o[0]?a.return:o[0]?a.throw||((r=a.return)&&r.call(a),0):a.next)&&!(r=r.call(a,o[1])).done)return r;switch(a=0,r&&(o=[2&o[0],r.value]),o[0]){case 0:case 1:r=o;break;case 4:return i.label++,{value:o[1],done:!1};case 5:i.label++,a=o[1],o=[0];continue;case 7:o=i.ops.pop(),i.trys.pop();continue;default:if(!(r=(r=i.trys).length>0&&r[r.length-1])&&(6===o[0]||2===o[0])){i=0;continue}if(3===o[0]&&(!r||o[1]>r[0]&&o[1]<r[3])){i.label=o[1];break}if(6===o[0]&&i.label<r[1]){i.label=r[1],r=o;break}if(r&&i.label<r[2]){i.label=r[2],i.ops.push(o);break}r[2]&&i.ops.pop(),i.trys.pop();continue}o=t.call(e,i)}catch(e){o=[6,e],a=0}finally{n=r=0}if(5&o[0])throw o[1];return{value:o[0]?o[1]:void 0,done:!0}}([o,u])}}};Object.defineProperty(exports,\"__esModule\",{value:!0}),require(\"./index.css\");var n=!1,a=document.querySelector(\"#fader\");a.addEventListener(\"input\",function(){i(a.valueAsNumber)});var r=-1;function o(){return e(this,void 0,void 0,function(){var e;return t(this,function(t){switch(t.label){case 0:return[4,fetch(\"/data\")];case 1:return[4,t.sent().json()];case 2:return e=t.sent(),document.getElementById(\"PodInfo\").innerHTML=e.data[0].dataValue,document.getElementById(\"SwitchInfo\").innerHTML=e.data[1].dataValue,document.getElementById(\"LEDON1info\").innerHTML=e.data[2].dataValue,document.getElementById(\"LEDON2info\").innerHTML=e.data[3].dataValue,document.getElementById(\"LEDON3info\").innerHTML=e.data[4].dataValue,document.getElementById(\"LEDON4info\").innerHTML=e.data[5].dataValue,document.getElementById(\"TNodes\").innerHTML=e.data[6].dataValue,[2]}})})}function i(e){r>0&&clearInterval(r),r=setInterval(function(){o().catch(console.error)},e)}document.querySelector(\"button#changeView1\").addEventListener(\"click\",function(){0==n?(document.getElementById(\"Data\").style.display=\"none\",document.getElementById(\"Settings\").style.display=\"block\",document.getElementById(\"changeView1\").innerHTML=\"Show Data\",n=!0):(document.getElementById(\"Data\").style.display=\"block\",document.getElementById(\"Settings\").style.display=\"none\",document.getElementById(\"changeView1\").innerHTML=\"Settings\",n=!1)}),i(2e3); },{\"./index.css\":\"vKFU\"}]},{},[\"7QCb\"], null)</script> </body> </html>";
 
-
   server.send(200, "text/html", html);
 
+  //Checks if client provided input on main webpage and changes corrosponding value
   if (server.hasArg("LEDON1"))
   {
     LEDON1 = true;
@@ -217,6 +227,7 @@ void handleRoot()
   
 }
 
+//handles requested page that was not found 
 void handleNotFound()
 {
   String message = "File Not Found\n\n";
@@ -235,6 +246,7 @@ void handleNotFound()
   server.send(404, "text/plain", message);
 }
 
+//Sends the current values through LoRa and increases message count
 void sendMessage() 
 { 
   LoRa.beginPacket(); 
@@ -246,56 +258,68 @@ void sendMessage()
   LoRa.write(LEDON3);
   LoRa.write(LEDON4);  
   LoRa.endPacket();    
-  msgCount++; 
-  
+  msgCount++;  
 }
 
 void onReceive(int packetSize) 
-{
+{ 
+  //Checks for fake packets
   if (packetSize == 0) return;   
   
+  //Reads the info of the sender
   int recipient = LoRa.read();  
   byte sender = LoRa.read();   
   byte incomingMsgId = LoRa.read();
-    
+
+  //Reads the sensor values of the packet and assigns it to corrosponding varables  
   varPod = LoRa.read();
   varSwitch = LoRa.read();
 
+  //Checks if the message was intended for this receiver
   if (recipient != localAddress && recipient != 0xFF) 
-  {
+  { 
+    Serial.println();
     Serial.println("This message is not for me.");
     return;          
   }
 
+  //Outputs packet meta data to Serial console
   lastRecieveTime = millis();
+  Serial.println();
   Serial.println("Received from: 0x" + String(sender, HEX));
   Serial.println("Sent to: 0x" + String(recipient, HEX));
   Serial.println("Packet ID: " + String(incomingMsgId));
   Serial.println("Packet content: Pod:" + String(varPod) + " Switch:" + String(varSwitch));
   Serial.println("RSSI: " + String(LoRa.packetRssi()));
   Serial.println("Snr: " + String(LoRa.packetSnr()));
+  Serial.println();
 }
 
-
+//Setup
 void setup() 
-{
+{ 
+  //initialises Serial interface
   Serial.begin(115200);
   Serial.println();
 
+  //Sets custom pins for lora
   LoRa.setPins(csPin, resetPin, irqPin);
 
+  //Checks SPI connection to the lora module
   if (! lora.begin(433E6));
   { 
     Serial.println("LoRa init failed. Check your connections.");
-    while (true);   
+    while (true) {Serial.print("."); delay(500);};   
   } 
     else
   {
     Serial.println("Sucsesfully initialized LoRa");
   }
+  //Sets SpreadingFactor(Default = 7) and Sync word for lora(Default = NULL)
   LoRa.setSyncWord(0xE8);
   LoRa.setSpreadingFactor(10);    
 
+  //Tries to connect to wifi
   if (!WiFi.begin(wifi_ssid, wifi_password)) 
   {
     Serial.println("Failed to start wifi adaptor");
@@ -306,24 +330,26 @@ void setup()
     Serial.println("Sucsesfully initialized the wifi adaptor");
   };
 
+  //Waits untill wifi connects
   while (WiFi.status() != WL_CONNECTED) 
   {
     delay(500);
     Serial.print(".");
   }
-
+  //Prints connection info
   Serial.println("");
   Serial.print("Connected to ");
   Serial.println(wifi_ssid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
+  //Defines accessable pages to webserver
   server.on("/", handleRoot);
   server.on("/data", handelGetData);
   server.on("/login", handleLogin);
   server.on("/info", []() {server.send(200, "text/plain", "");});
-
   server.onNotFound(handleNotFound);
+  
   const char * headerkeys[] = {"User-Agent","Cookie"} ;
   size_t headerkeyssize = sizeof(headerkeys)/sizeof(char*);
   server.collectHeaders(headerkeys, headerkeyssize );
@@ -333,11 +359,13 @@ void setup()
 }
 
 void loop()
-{
+{ 
   server.handleClient();
- 
+
+  //Listens fo packet
   onReceive(LoRa.parsePacket());
   
+  //Sends packet every 5 seconds
   if (millis() - lastSendTime > interval)
   { 
     sendMessage();
@@ -351,6 +379,7 @@ void loop()
     interval = 5000;   
   }
 
+  //set Nodeconnected Varable for webpage
   if (millis() - lastRecieveTime < nodeConectedTimeout) 
   {
     nodeConnected = 1;
