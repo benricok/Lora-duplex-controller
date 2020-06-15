@@ -306,7 +306,7 @@ void setup()
   LoRa.setPins(csPin, resetPin, irqPin);
 
   //Checks SPI connection to the lora module
-  if (! lora.begin(433E6));
+  if (! lora.begin(433E6))
   { 
     Serial.println("LoRa init failed. Check your connections.");
     while (true) {Serial.print("."); delay(500);};   
