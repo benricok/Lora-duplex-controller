@@ -189,37 +189,37 @@ void handleRoot()
     LEDON1 = true;
     LEDON1Converted = "ON";
   } 
-    else if (server.hasArg("LEDOFF1"))
+  if (server.hasArg("LEDOFF1"))
   {
     LEDON1 = false;
     LEDON1Converted = "OFF";
   } 
-    else if (server.hasArg("LEDON2"))
+  if (server.hasArg("LEDON2"))
   {
     LEDON2 = true;
     LEDON2Converted = "ON";
   } 
-    else if (server.hasArg("LEDOFF2"))
+  if (server.hasArg("LEDOFF2"))
   {
     LEDON2 = false;
     LEDON2Converted = "OFF";
   } 
-    else if (server.hasArg("LEDON3"))
+  if (server.hasArg("LEDON3"))
   {
     LEDON3 = true;
     LEDON3Converted = "ON";
   } 
-    else if (server.hasArg("LEDOFF3"))
+  if (server.hasArg("LEDOFF3"))
   {
     LEDON3 = false;
     LEDON3Converted = "OFF";
   } 
-    else if (server.hasArg("LEDON4"))
+  if (server.hasArg("LEDON4"))
   {
     LEDON4 = true;
     LEDON4Converted = "ON";
   } 
-    else if (server.hasArg("LEDOFF4"))
+  if (server.hasArg("LEDOFF4"))
   {
     LEDON4 = false;
     LEDON4Converted = "OFF";
@@ -306,7 +306,7 @@ void setup()
   LoRa.setPins(csPin, resetPin, irqPin);
 
   //Checks SPI connection to the lora module
-  if (! lora.begin(433E6))
+  if (!LoRa.begin(433E6))
   { 
     Serial.println("LoRa init failed. Check your connections.");
     while (true) {Serial.print("."); delay(500);};   
