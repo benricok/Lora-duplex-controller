@@ -7,8 +7,8 @@
 
 
 //Change these values
-  const char *wifi_ssid = "KROGWiFi";
-  const char *wifi_password = "Soet2909admin";
+  const char *wifi_ssid = "";
+  const char *wifi_password = "";
   const char *adminUser = "Iot";
   const char *adminPassword = "Iot6541";
 
